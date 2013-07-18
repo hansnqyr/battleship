@@ -1,5 +1,5 @@
 class HansKreugerPlayer 
-    HIT_BONUS = 5
+    HIT_BONUS = 25
     PROBABILITY = 1
     DELAY = 0
 
@@ -25,6 +25,7 @@ class HansKreugerPlayer
         # state is the known state of opponents fleet
         # ships_remaining is an array of the remaining opponents ships
         grid = new_grid
+        
         ships_remaining.each do |ship|
             ship_grid = check_ship(state, ship)
             10.times do |x|
