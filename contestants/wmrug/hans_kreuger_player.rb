@@ -1,7 +1,7 @@
 class HansKreugerPlayer 
     HIT_BONUS = 5
     PROBABILITY = 1
-    DELAY = 1
+    DELAY = 0
 
     def name
         # Uniquely identify your player
@@ -24,7 +24,6 @@ class HansKreugerPlayer
     def take_turn(state, ships_remaining)
         # state is the known state of opponents fleet
         # ships_remaining is an array of the remaining opponents ships
-
         grid = new_grid
         ships_remaining.each do |ship|
             ship_grid = check_ship(state, ship)
@@ -41,7 +40,7 @@ class HansKreugerPlayer
 
         10.times do |x|
             10.times do |y|
-                if grid[x][y] > highest && state[x][y] == :unknown
+                if grid[x][y] >= highest && state[x][y] == :unknown
                     target_x = y
                     target_y = x
                     highest = grid[x][y]
@@ -67,39 +66,61 @@ class HansKreugerPlayer
         grid = new_grid
         10.times do |x|
             10.times do |y|
-                size.times do |move|
+                range = (0-size)..(0+size)
+                range.each do |start|
                     miss = false
                     hit = 0
+                    ship = []
                     size.times do |length|
-                        if x - move + length < 9 && x - move + length > 0
-                            case state[x - move + length][y]
-                            when :miss
-                                miss = true
-                            when :hit
-                                hit += HIT_BONUS
-                            end
+                        if (0...9).include?(x + start + length)
+                            ship << state[x + start + length][y]
+                        else
+                            ship << :miss
                         end
                     end
-                    grid[x][y] += ( PROBABILITY + hit ) unless miss
+                    if !(ship.include? :miss)
+                        position = 0
+                        ship.each do | value |
+                            case value
+                            when :unknown
+                                grid[x + start + position][y] += PROBABILITY
+                            when :hit
+                                grid[x + start + position - 1][y] += HIT_BONUS unless x + start + position - 1 < 0
+                                grid[x + start + position + 1][y] += HIT_BONUS unless x + start + position + 1 > 9
+                            end
+                            position += 1
+                        end
+                    end
                 end
             end
         end
         10.times do |x|
             10.times do |y|
-                size.times do |move|
+                range = (0-size)..(0+size)
+                range.each do |start|
                     miss = false
                     hit = 0
+                    ship = []
                     size.times do |length|
-                        if y - move + length < 9 && y - move + length > 0
-                            case state[x][y - move + length]
-                            when :miss
-                                miss = true
-                            when :hit
-                                hit += HIT_BONUS
-                            end
+                        if (0...9).include?(y + start + length)
+                            ship << state[x][y + start + length]
+                        else
+                            ship << :miss
                         end
                     end
-                    grid[x][y] += ( PROBABILITY + hit ) unless miss
+                    if !(ship.include? :miss)
+                        position = 0
+                        ship.each do | value |
+                            case value
+                            when :unknown
+                                grid[x][y + start + position] += PROBABILITY
+                            when :hit
+                                grid[x][y + start + position - 1] += HIT_BONUS unless y + start + position - 1 < 0
+                                grid[x][y + start + position + 1] += HIT_BONUS unless y + start + position + 1 > 9
+                            end
+                            position += 1
+                        end
+                    end
                 end
             end
         end
