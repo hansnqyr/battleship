@@ -1,5 +1,6 @@
 class HansKreugerPlayer 
-    HIT_BONUS = 25
+    HIT_BONUS = 10
+    PARITY = 5
     PROBABILITY = 1
     DELAY = 0
 
@@ -54,10 +55,12 @@ class HansKreugerPlayer
 
     def new_grid
         grid = Array.new
+        toggle = false
         10.times do |x|
             grid[x] = Array.new
             10.times do |y|
-                grid[x][y] = 0
+                grid[x][y] = toggle ? 0 : PARITY
+                toggle = !toggle
             end
         end
         return grid
