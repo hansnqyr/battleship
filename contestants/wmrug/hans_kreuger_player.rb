@@ -5,17 +5,13 @@ class HansKreugerPlayer
     HIT_BONUS = 11
     PARITY = 0
     PROBABILITY = 1
-    DELAY = 0.000
+    DELAY = 1.000
 
     def name
-        # Uniquely identify your player
         "@hanskreuger"
     end
 
     def new_game
-        # return an array of 5 arrays containing
-        # [x,y, length, orientation]
-        # e.g.
         if true
         [
             [2, 0, 5, :across],
@@ -36,8 +32,6 @@ class HansKreugerPlayer
     end
 
     def take_turn(state, ships_remaining)
-        # state is the known state of opponents fleet
-        # ships_remaining is an array of the remaining opponents ships
         @state = state
         grid = new_grid
         ships_remaining.each do |ship|
@@ -50,38 +44,55 @@ class HansKreugerPlayer
         end
 
         highest = 0
+        targets = []
         target_x = 0
         target_y = 0
 
         10.times do |x|
             10.times do |y|
-                if grid[x][y] >= highest && state[x][y] == :unknown
-                    target_x = y
-                    target_y = x
+                if grid[x][y] > highest || highest == 0
                     highest = grid[x][y]
+                    targets = []
+                    targets << [x, y]
+                elsif grid[x][y] == highest
+                    targets << [x, y]
                 end
-                
-                heat = grid[x][y]
-                case 
-                when heat > 500
-                    heat = heat.to_s.rjust(3,"0").magenta
-                when heat > 200
-                    heat = heat.to_s.rjust(3,"0").red
-                when heat > 100
-                    heat = heat.to_s.rjust(3,"0").yellow
-                when heat > 50
-                    heat = heat.to_s.rjust(3,"0").cyan
-                when heat > 0
-                    heat = heat.to_s.rjust(3,"0").white
-                else
-                    heat = heat.to_s.rjust(3,"0").black
-                end
-                print heat + ","
             end
-            print "\n"
         end
+        index = Random.rand(targets.length )
+        target = targets[index]
+       
+        puts heatmap(grid)
+
         sleep DELAY
-        return [target_x,target_y] # your next shot co-ordinates
+        return target.reverse # your next shot co-ordinates
+    end
+    
+    def heatmap(grid)
+        top = grid.flatten.uniq.max
+        text = String.new
+        10.times do |x|
+            10.times do |y|
+                score = grid[x][y]
+                square = grid[x][y].to_s.rjust(top.to_s.length,"0") + ","
+                case
+                when score > top * 0.8
+                    text += square.magenta
+                when score > top * 0.6
+                    text += square.red
+                when score > top * 0.4
+                    text += square.yellow
+                when score > top * 0.2
+                    text += square.cyan
+                when score > 0
+                    text += square.white
+                else
+                    text += square.black
+                end
+            end
+            text += "\n"
+        end
+        return text
     end
 
     def new_grid
